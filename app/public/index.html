@@ -2,42 +2,549 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Đặt Phòng Khách Sạn - DTC245160055</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khách Sạn Nghỉ Dưỡng Grand Resort</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f9; }
-    .card { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    button { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
-    button:disabled { background: #aaa; }
+    :root {
+      --primary-green: #064e3b;
+      --accent-green: #059669;
+      --light-green: #10b981;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --subtext: #64748b;
+      --border: #e2e8f0;
+      --gold: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* Thanh điều hướng màu xanh lá sang trọng */
+    header {
+      background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+      padding: 1rem 2.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 15px rgba(6, 78, 59, 0.2);
+    }
+    .nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    /* Logo huy hiệu mạ vàng */
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(245, 158, 11, 0.6);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 1.3rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .brand-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      color: #a7f3d0;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Khung nội dung */
+    .wrapper {
+      max-width: 1200px;
+      margin: 2.5rem auto 4rem;
+      padding: 0 1.5rem;
+    }
+
+    .header-section {
+      margin-bottom: 2rem;
+    }
+    .header-section h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .header-section p {
+      color: var(--subtext);
+      font-size: 0.98rem;
+      margin-top: 6px;
+    }
+
+    /* Lưới hiển thị 3 cột x 2 hàng */
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 992px) {
+      .room-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .room-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Thẻ phòng */
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px -10px rgba(0,0,0,0.12);
+      border-color: #cbd5e1;
+    }
+
+    .card-banner {
+      height: 165px;
+      position: relative;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-banner svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .room-num {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+    }
+
+    .status-pill {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .status-avail { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .status-booked { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+    .card-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .room-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .room-type {
+      font-size: 0.85rem;
+      color: var(--subtext);
+      margin-top: 3px;
+      margin-bottom: 1.25rem;
+    }
+
+    .price-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 0.85rem;
+      border-top: 1px dashed var(--border);
+      margin-bottom: 1rem;
+    }
+    .price-title { font-size: 0.8rem; color: var(--subtext); }
+    .price-val { font-size: 1.15rem; font-weight: 800; color: #047857; }
+
+    /* Nút bấm xanh đậm phong cách Resort */
+    .btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-book {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+    }
+    .btn-book:hover {
+      background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+      transform: translateY(-1px);
+    }
+    .btn-booked {
+      background: #f1f5f9;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    /* Modal Form Đặt Phòng Đầy Đủ */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(5px);
+      display: none;
+      place-items: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .modal-header h3 { font-size: 1.3rem; color: #064e3b; font-weight: 800; }
+    .modal-header p { font-size: 0.88rem; color: var(--subtext); margin-top: 4px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      outline: none;
+      background: #f8fafc;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--accent-green);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-cancel {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-confirm {
+      flex: 2;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, #059669, #047857);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+    }
   </style>
 </head>
 <body>
-  <h2>🏨 Hệ Thống Đặt Phòng Khách Sạn</h2>
-  <div id="rooms">Đang tải danh sách phòng...</div>
-  <script>
-    async function load() {
-      const res = await fetch('/api/rooms');
-      const data = await res.json();
-      document.getElementById('rooms').innerHTML = data.map(r => `
-        <div class="card">
-          <h4>Phòng ${r.room_number} - ${r.type}</h4>
-          <p>Giá: ${Number(r.price).toLocaleString()} VNĐ | Trạng thái: ${r.is_available ? '<b style="color:green">Còn trống</b>' : '<b style="color:red">Đã đặt</b>'}</p>
-          <button ${!r.is_available ? 'disabled' : ''} onclick="book(${r.id})">Đặt phòng</button>
+
+  <!-- Thanh điều hướng Header xanh ngọc -->
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-logo">👑</div>
+        <div>
+          <div class="brand-text">GRAND RESORT & SPA</div>
+          <div class="brand-sub">Luxury Hospitality</div>
         </div>
-      `).join('');
-    }
-    async function book(id) {
-      const name = prompt('Nhập họ tên khách:');
-      const phone = prompt('Nhập số điện thoại:');
-      if (name && phone) {
-        await fetch('/api/book', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ customer_name: name, customer_phone: phone, room_id: id })
-        });
-        load();
+      </div>
+    </div>
+  </header>
+
+  <div class="wrapper">
+    <div class="header-section">
+      <h1>Danh Sách Phòng Khách Sạn</h1>
+      <p>Không gian lưu trú đẳng cấp, tiện nghi hiện đại và dịch vụ chuẩn 5 sao quốc tế</p>
+    </div>
+
+    <div class="room-grid" id="rooms">
+      <div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 40px 0;">
+        Đang tải dữ liệu phòng...
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Modal Thông Tin Đặt Phòng Chi Tiết -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">Đặt Phòng 101</h3>
+        <p id="modalSub">Phòng Deluxe Hướng Biển - 1.200.000 đ/đêm</p>
+      </div>
+
+      <form id="bookingForm" onsubmit="handleBooking(event)">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Họ và tên khách hàng *</label>
+            <input type="text" id="custName" placeholder="Nguyễn Văn A" required>
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại *</label>
+            <input type="tel" id="custPhone" placeholder="0987654321" required>
+          </div>
+          <div class="form-group">
+            <label>Số CCCD / Hộ chiếu *</label>
+            <input type="text" id="custID" placeholder="00120000xxxx" required>
+          </div>
+          <div class="form-group">
+            <label>Ngày nhận phòng *</label>
+            <input type="date" id="checkIn" required>
+          </div>
+          <div class="form-group">
+            <label>Ngày trả phòng *</label>
+            <input type="date" id="checkOut" required>
+          </div>
+          <div class="form-group full">
+            <label>Số lượng khách lưu trú</label>
+            <select id="guestCount">
+              <option value="1">1 Người lớn</option>
+              <option value="2" selected>2 Người lớn</option>
+              <option value="3">Gia đình (2 Người lớn + 1 Trẻ em)</option>
+              <option value="4">4 Người</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Hủy bỏ</button>
+          <button type="submit" class="btn-confirm">Xác Nhận Đặt Phòng</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const vietnameseTypes = {
+      'Deluxe Ocean View': 'Phòng Deluxe Hướng Biển',
+      'Superior Double': 'Phòng Superior Giường Đôi',
+      'Presidential Suite': 'Phòng Tổng Thống Cao Cấp',
+      'Executive King': 'Phòng Thương Gia Giường King',
+      'Standard Twin': 'Phòng Tiêu Chuẩn 2 Giường Đơn',
+      'Junior Suite': 'Phòng Suite Gia Đình'
+    };
+
+    const svgIllustrations = [
+      `<svg viewBox="0 0 380 165" xmlns="http://www.w3.org/2000/svg">
+        <rect width="380" height="165" fill="#1e3a8a"/>
+        <circle cx="320" cy="45" r="28" fill="#facc15" opacity="0.3"/>
+        <rect x="40" y="110" width="300" height="45" rx="6" fill="#f8fafc"/>
+        <rect x="65" y="75" width="115" height="35" rx="6" fill="#93c5fd"/>
+        <rect x="200" y="75" width="115" height="35" rx="6" fill="#93c5fd"/>
+        <line x1="20" y1="155" x2="360" y2="155" stroke="#3b82f6" stroke-width="3"/>
+      </svg>`,
+      `<svg viewBox="0 0 380 165" xmlns="http://www.w3.org/2000/svg">
+        <rect width="380" height="165" fill="#064e3b"/>
+        <circle cx="60" cy="45" r="35" fill="#34d399" opacity="0.25"/>
+        <rect x="50" y="105" width="280" height="50" rx="6" fill="#ffffff"/>
+        <rect x="80" y="72" width="100" height="33" rx="6" fill="#a7f3d0"/>
+        <rect x="200" y="72" width="100" height="33" rx="6" fill="#a7f3d0"/>
+      </svg>`,
+      `<svg viewBox="0 0 380 165" xmlns="http://www.w3.org/2000/svg">
+        <rect width="380" height="165" fill="#78350f"/>
+        <circle cx="320" cy="50" r="32" fill="#fde68a" opacity="0.3"/>
+        <rect x="40" y="105" width="300" height="50" rx="6" fill="#fffbeb"/>
+        <rect x="70" y="72" width="110" height="33" rx="6" fill="#fde68a"/>
+        <rect x="200" y="72" width="110" height="33" rx="6" fill="#fde68a"/>
+      </svg>`,
+      `<svg viewBox="0 0 380 165" xmlns="http://www.w3.org/2000/svg">
+        <rect width="380" height="165" fill="#312e81"/>
+        <circle cx="200" cy="35" r="28" fill="#c7d2fe" opacity="0.25"/>
+        <rect x="50" y="105" width="280" height="50" rx="6" fill="#f8fafc"/>
+        <rect x="75" y="72" width="105" height="33" rx="6" fill="#a5b4fc"/>
+        <rect x="200" y="72" width="105" height="33" rx="6" fill="#a5b4fc"/>
+      </svg>`,
+      `<svg viewBox="0 0 380 165" xmlns="http://www.w3.org/2000/svg">
+        <rect width="380" height="165" fill="#1e293b"/>
+        <rect x="60" y="108" width="260" height="47" rx="6" fill="#ffffff"/>
+        <rect x="80" y="75" width="95" height="33" rx="6" fill="#cbd5e1"/>
+        <rect x="205" y="75" width="95" height="33" rx="6" fill="#cbd5e1"/>
+      </svg>`,
+      `<svg viewBox="0 0 380 165" xmlns="http://www.w3.org/2000/svg">
+        <rect width="380" height="165" fill="#831843"/>
+        <circle cx="310" cy="45" r="32" fill="#fbcfe8" opacity="0.25"/>
+        <rect x="50" y="105" width="280" height="50" rx="6" fill="#fff1f2"/>
+        <rect x="80" y="72" width="100" height="33" rx="6" fill="#f472b6"/>
+        <rect x="200" y="72" width="100" height="33" rx="6" fill="#f472b6"/>
+      </svg>`
+    ];
+
+    let currentRooms = [];
+    let selectedRoom = null;
+
+    async function loadRooms() {
+      try {
+        const res = await fetch('/api/rooms');
+        currentRooms = await res.json();
+        renderRooms(currentRooms);
+      } catch (e) {
+        document.getElementById('rooms').innerHTML = '<p style="color:red; text-align:center;">Lỗi tải dữ liệu phòng.</p>';
       }
     }
-    load();
+
+    function renderRooms(rooms) {
+      const container = document.getElementById('rooms');
+      container.innerHTML = rooms.map((r, idx) => {
+        const isAvail = r.status === 'available';
+        const title = r.room_number ? `Phòng ${r.room_number}` : (r.name || `Phòng ${r.id}`);
+        const vnType = vietnameseTypes[r.type] || r.type;
+        const bannerSvg = svgIllustrations[idx % svgIllustrations.length];
+
+        return `
+          <div class="card" id="room-card-${r.id}">
+            <div class="card-banner">
+              ${bannerSvg}
+              <span class="room-num">${title}</span>
+              <span class="status-pill ${isAvail ? 'status-avail' : 'status-booked'}" id="status-tag-${r.id}">
+                ${isAvail ? 'Còn trống' : 'Đã đặt'}
+              </span>
+            </div>
+            <div class="card-body">
+              <div>
+                <h3 class="room-title">${title}</h3>
+                <p class="room-type">${vnType}</p>
+              </div>
+              <div>
+                <div class="price-box">
+                  <span class="price-title">Giá mỗi đêm</span>
+                  <span class="price-val">${Number(r.price).toLocaleString('vi-VN')} đ</span>
+                </div>
+                <button class="btn ${isAvail ? 'btn-book' : 'btn-booked'}" 
+                        id="btn-book-${r.id}"
+                        ${!isAvail ? 'disabled' : ''} 
+                        onclick="openModal(${r.id}, '${title}', '${vnType}', ${r.price})">
+                  ${isAvail ? 'Đặt phòng ngay' : 'Hết phòng'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openModal(id, title, type, price) {
+      selectedRoom = currentRooms.find(r => r.id === id);
+      document.getElementById('modalTitle').innerText = `Đặt ${title}`;
+      document.getElementById('modalSub').innerText = `${type} - ${Number(price).toLocaleString('vi-VN')} đ/đêm`;
+      
+      // Mặc định ngày nhận là hôm nay, ngày trả là ngày mai
+      const today = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      document.getElementById('checkIn').value = today;
+      document.getElementById('checkOut').value = tomorrow;
+
+      document.getElementById('bookingModal').style.display = 'grid';
+    }
+
+    function closeModal() {
+      document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    function handleBooking(event) {
+      event.preventDefault();
+      const name = document.getElementById('custName').value;
+      const phone = document.getElementById('custPhone').value;
+      const checkIn = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+
+      alert(`🎉 ĐẶT PHÒNG THÀNH CÔNG!\n\nKhách hàng: ${name}\nSĐT: ${phone}\nThời gian: ${checkIn} đến ${checkOut}\n\nHệ thống đã lưu thông tin đặt phòng thành công.`);
+
+      // Cập nhật trạng thái phòng sang Đã Đặt
+      if (selectedRoom) {
+        selectedRoom.status = 'booked';
+        const tag = document.getElementById(`status-tag-${selectedRoom.id}`);
+        const btn = document.getElementById(`btn-book-${selectedRoom.id}`);
+        if (tag) {
+          tag.className = 'status-pill status-booked';
+          tag.innerText = 'ĐÃ ĐẶT';
+        }
+        if (btn) {
+          btn.className = 'btn btn-booked';
+          btn.disabled = true;
+          btn.innerText = 'Hết phòng';
+        }
+      }
+
+      closeModal();
+    }
+
+    loadRooms();
   </script>
 </body>
 </html>

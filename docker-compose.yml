@@ -5,10 +5,13 @@ networks:
     driver: bridge
   backend_net:
     driver: bridge
+  monitoring_net:
+    driver: bridge
 
 volumes:
   postgres_data:
   pgadmin_data:
+  grafana_data:
   nginx_logs:
 
 services:
@@ -39,9 +42,7 @@ services:
       - frontend_net
 
   hotel_app:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
+    image: dtc245160055_tkqthtpm_de06-hotel_app:latest
     container_name: hotel_app
     restart: always
     environment:
@@ -51,11 +52,14 @@ services:
       DB_USER: hotel_user
       DB_PASSWORD: StrongSecretPass123!
       DB_NAME: hotel_db
+    volumes:
+      - ./app/public:/usr/src/app/public
     depends_on:
       - postgres
     networks:
       - frontend_net
       - backend_net
+      - monitoring_net
 
   nginx:
     image: nginx:alpine
@@ -72,3 +76,60 @@ services:
       - hotel_app
     networks:
       - frontend_net
+      - monitoring_net
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus_srv
+    restart: always
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring_net
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana_srv
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=GrafanaSecret2026!
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitoring_net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: cadvisor_mon
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring_net
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:0.11.0
+    container_name: nginx_exporter
+    restart: always
+    command:
+      - -nginx.scrape-uri=https://nginx:443/stub_status
+      - -nginx.ssl-verify=false
+    networks:
+      - monitoring_net
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: postgres_exporter
+    restart: always
+    environment:
+      DATA_SOURCE_NAME: "postgresql://hotel_user:StrongSecretPass123!@postgres:5432/hotel_db?sslmode=disable"
+    networks:
+      - backend_net
+      - monitoring_net
