@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Đặt Phòng Khách Sạn - DTC245160055</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f9; }
+    .card { background: #fff; padding: 15px; margin-bottom: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    button { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    button:disabled { background: #aaa; }
+  </style>
+</head>
+<body>
+  <h2>🏨 Hệ Thống Đặt Phòng Khách Sạn</h2>
+  <div id="rooms">Đang tải danh sách phòng...</div>
+  <script>
+    async function load() {
+      const res = await fetch('/api/rooms');
+      const data = await res.json();
+      document.getElementById('rooms').innerHTML = data.map(r => `
+        <div class="card">
+          <h4>Phòng ${r.room_number} - ${r.type}</h4>
+          <p>Giá: ${Number(r.price).toLocaleString()} VNĐ | Trạng thái: ${r.is_available ? '<b style="color:green">Còn trống</b>' : '<b style="color:red">Đã đặt</b>'}</p>
+          <button ${!r.is_available ? 'disabled' : ''} onclick="book(${r.id})">Đặt phòng</button>
+        </div>
+      `).join('');
+    }
+    async function book(id) {
+      const name = prompt('Nhập họ tên khách:');
+      const phone = prompt('Nhập số điện thoại:');
+      if (name && phone) {
+        await fetch('/api/book', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ customer_name: name, customer_phone: phone, room_id: id })
+        });
+        load();
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
